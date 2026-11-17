@@ -1,0 +1,17 @@
+{
+  "name": "zentao-personal",
+  "version": "1.0.0",
+  "description": "跨平台禅道个人 Bug 技能：交互安装到 Codex、Claude Code、Cursor，并引导项目与分支选择",
+  "type": "module",
+  "bin": { "zentao-personal": "bin/zentao-personal.js" },
+  "engines": { "node": ">=20" },
+  "files": ["bin/", "lib/", "scripts/zentao_read.py", "SKILL.md", "references/", "LICENSE"],
+  "scripts": { "test": "node --test" },
+  "keywords": ["agent-skill", "skills", "zentao", "禅道", "codex", "claude-code", "cursor", "bug"],
+  "author": "zhan1024",
+  "license": "MIT",
+  "repository": { "type": "git", "url": "git+https://github.com/zhan1024/zentao-personal.git" },
+  "homepage": "https://github.com/zhan1024/zentao-personal#readme",
+  "bugs": { "url": "https://github.com/zhan1024/zentao-personal/issues" },
+  "publishConfig": { "access": "public", "registry": "https://registry.npmjs.org/" }
+}

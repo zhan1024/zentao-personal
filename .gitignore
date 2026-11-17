@@ -1,0 +1,9 @@
+node_modules/
+*.tgz
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+.env*
+config.json
+coverage/
