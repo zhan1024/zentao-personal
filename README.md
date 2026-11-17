@@ -1,8 +1,10 @@
-# zentao-personal
+# zentao-personal · 禅道个人 Bug 助手
 
-面向 Codex、Claude Code 和 Cursor 的个人禅道 Bug 技能，附带 Windows／macOS 可用的 npx 交互向导。
+**从禅道 Bug 到代码修复，打通 AI 开发的最后一公里。**
 
-查询分配给自己的 Bug、读取详情；需要修复时，AI 识别工作区项目，通过宿主选择框引导选择项目、当前分支或新建修复分支，再定位代码并验证。
+禅道 18.7 已验证 · Windows／macOS · Codex／Claude Code／Cursor
+
+把分配给你的 Bug 带入 AI 编程工具，从读取详情、选择项目和分支，到定位代码、协助修复与验证，提供连贯引导。附带 npx 交互向导，安装时使用方向键即可选择。
 
 ```text
 npx zentao-personal
