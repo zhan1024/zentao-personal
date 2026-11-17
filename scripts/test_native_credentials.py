@@ -17,7 +17,7 @@ class NativeCredentialsTests(unittest.TestCase):
     def test_temporary_system_record_round_trip(self):
         service = 'zentao-personal-test-' + uuid.uuid4().hex
         account = 'ephemeral-fixture'
-        password = '测试-only-fixture-' + uuid.uuid4().hex
+        password = '测试-quote\'"-backslash\\-space -only-fixture-' + uuid.uuid4().hex
         config = {'keychain_service': service, 'account': account}
         try:
             self.assertTrue(zentao_read.save_password(config, password))

@@ -212,13 +212,24 @@ class ConfigurationTests(unittest.TestCase):
             self.assertFalse(zentao_read.save_password(FULL_CONFIG, 'fixture-password'))
 
     def test_macos_password_is_not_passed_as_process_argument(self):
-        completed = types.SimpleNamespace(returncode=0, stdout='fixture-password\n')
+        completed = types.SimpleNamespace(returncode=0, stdout='', stderr='password: "fixture-password"\n')
         with patch.object(zentao_read.sys, 'platform', 'darwin'), \
                 patch.object(zentao_read.subprocess, 'run', return_value=completed) as run:
             self.assertTrue(zentao_read.save_password(FULL_CONFIG, 'fixture-password'))
         command = run.call_args_list[0].args[0]
         self.assertNotIn('fixture-password', command)
         self.assertIn('fixture-password', run.call_args_list[0].kwargs['input'])
+
+    def test_macos_decodes_unicode_hex_without_confusing_ascii_hex_passwords(self):
+        for password, encoded in [
+            ('测试密码', '0x' + '测试密码'.encode().hex() + ' '),
+            ('deadbeef1234', '"deadbeef1234"'),
+            ('a"b c', '"a"b c"'),
+        ]:
+            result = types.SimpleNamespace(returncode=0, stdout='', stderr='password: ' + encoded + '\n')
+            with self.subTest(password=password), patch.object(zentao_read.sys, 'platform', 'darwin'), \
+                    patch.object(zentao_read.subprocess, 'run', return_value=result):
+                self.assertEqual(zentao_read.read_password(FULL_CONFIG), password)
 
     def test_no_keyring_backend_can_still_use_interactive_mode(self):
         fake_keyring = types.SimpleNamespace(get_keyring=lambda: types.SimpleNamespace(priority=0))

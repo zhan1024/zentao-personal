@@ -14,7 +14,7 @@ npx zentao-personal
 | Claude Code | `~/.claude/skills/zentao-personal` | `.claude/skills/zentao-personal` |
 | Cursor | `~/.cursor/skills/zentao-personal` | `.cursor/skills/zentao-personal` |
 
-`~` 在 Windows 代表当前 Windows 用户的主目录（通常 `%USERPROFILE%`），路径由 Node 自动处理。旧版 Codex 已安装在 `~/.codex/skills` 的技能仍可原地更新；如果多个目录存在同名技能，请保留需要使用的版本，避免重复发现。
+`~` 在 Windows 代表当前 Windows 用户的主目录（通常 `%USERPROFILE%`），路径由 Node 自动处理。旧版 Codex 已安装在 `~/.codex/skills` 时，可手动用完整仓库内容替换该技能目录；npm 安装器使用上表的新目录。多个目录存在同名技能时请保留需要使用的版本，避免重复发现。
 
 非交互安装：
 
@@ -40,7 +40,7 @@ npx zentao-personal bug 123
 - Linux：keyring 需要可用的系统 Secret Service／凭据后端；缺少后端时使用交互查询。
 - 未保存密码时可以在真实终端中每次输入；AI 后台执行需要已保存且可访问的系统凭据。
 
-Node.js 20+ 用于向导与安装；Python 3.9+ 用于查询。Windows 优先检测 `py -3`；macOS 优先 `python3`。`npx zentao-personal doctor` 只检查环境和配置结构，不读取密码、不登录禅道。
+Node.js 20+ 用于向导与安装；Python 3.9+ 用于查询；项目与分支引导需要 Git。Windows 优先检测 `py -3`；macOS 优先 `python3`。`npx zentao-personal doctor` 只检查环境和配置结构，不读取密码、不登录禅道。
 
 个人配置位于 `~/.config/zentao-personal/config.json`，只含站点、账号和凭据服务标识。macOS／Linux 尽力设置权限 0600，Windows 文件访问由当前用户目录的 ACL 管理，不宣称 POSIX 权限可以替代 Windows ACL。
 

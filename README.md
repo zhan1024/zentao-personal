@@ -12,7 +12,7 @@ npx zentao-personal
 
 ## 环境与首次使用
 
-需要 Node.js 20+ 和 Python 3.9+。CLI 无 npm 运行时依赖，无 postinstall 脚本。
+需要 Node.js 20+ 和 Python 3.9+；项目与分支引导还需要 Git。CLI 无 npm 运行时依赖，无 postinstall 脚本。
 
 1. 执行 `npx zentao-personal`，选择“安装／更新技能”。
 2. 选择 Codex、Claude Code、Cursor 中的一个或多个工具。

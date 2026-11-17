@@ -19,7 +19,7 @@ node "<技能目录>/bin/zentao-personal.js" bug <实际编号>
 
 需要 Node.js 20+、Python 3.9+。入口会自动选择 Python；Windows 支持 `py -3`、`python` 和 `python3`，并优先使用本工具准备的凭据运行环境。配置／安装问题读取 [references/setup.md](references/setup.md)。
 
-首次缺少配置时，说明需要用户在自己的终端运行 `npx zentao-personal configure`。密码应由用户在终端隐藏输入，不要求粘贴到聊天；无法发起交互终端时，不在后台启动配置。Windows 凭据引导会准备独立 Python 环境和 keyring；macOS 使用系统钥匙串。遇到认证失败、验证码、权限拒绝或版本不匹配，报告具体原因，不反复登录，不把错误当作空列表。
+首次缺少配置时，说明需要用户在自己的终端运行 `node "<技能目录>/bin/zentao-personal.js" configure`，也可使用 `npx zentao-personal configure`。密码应由用户在终端隐藏输入，不要求粘贴到聊天；无法发起交互终端时，不在后台启动配置。Windows 凭据引导会准备独立 Python 环境和 keyring；macOS 使用系统钥匙串。遇到认证失败、验证码、权限拒绝或版本不匹配，报告具体原因，不反复登录，不把错误当作空列表。
 
 查询脚本只执行登录与只读查询，已在禅道 18.7 验证。其他版本需实测，不能声称兼容全部禅道版本。
 

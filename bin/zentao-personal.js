@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { select, input, interactive, Cancelled } from '../lib/prompts.js';
 import { tools, installPath, installSkill, exists } from '../lib/install.js';
 import { detectPython, hasKeyring, runPython, setupCredentials } from '../lib/python.js';
-import { workspaceContext, validBranch } from '../lib/context.js';
+import { workspaceContext, validBranch, hasGit } from '../lib/context.js';
 
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const pkg = JSON.parse(await readFile(path.join(root, 'package.json'), 'utf8'));
@@ -85,7 +85,15 @@ async function context(args) {
   const result = await workspaceContext();
   if (args.includes('--json') || !interactive()) { console.log(JSON.stringify(result, null, 2)); return 0; }
   if (!result.repositories.length) { console.log('当前目录及直接子目录没有 Git 仓库。请进入需要处理的项目后重试。'); return 0; }
-  const repo = result.repositories.length === 1 ? result.repositories[0] : result.repositories[await select('这次处理哪个项目？', result.repositories.map((r, i) => ({ value: i, label: `${path.basename(r.path)} · ${r.branch || '分离 HEAD'}` })))];
+  let repo = result.repositories[0];
+  if (result.repositories.length > 1) {
+    const index = await select('这次处理哪个项目？', [
+      ...result.repositories.map((r, i) => ({ value: i, label: `${r.path} · ${r.branch || '分离 HEAD'} · ${r.dirty ? '有未提交改动' : '干净'}` })),
+      { value: -1, label: '只分析工作区，暂不选择项目' },
+    ]);
+    if (index === -1) { console.log(JSON.stringify({ ...result, action: 'analyze' }, null, 2)); return 0; }
+    repo = result.repositories[index];
+  }
   console.log(`项目：${repo.path}\n当前分支：${repo.branch || '分离 HEAD'}\n工作区：${repo.dirty ? '有未提交改动' : '干净'}`);
   const options = [
     ...(repo.branch ? [{ value: 'current', label: `在当前分支 ${repo.branch} 修复` }] : []),
@@ -104,6 +112,7 @@ async function context(args) {
 
 async function doctor() {
   console.log(`zentao-personal ${pkg.version}\n系统：${process.platform} ${os.arch()}\nNode：${process.version}`);
+  console.log(`Git：${hasGit() ? '可用' : '未找到（项目与分支引导需要 Git）'}`);
   let ok = true;
   try {
     const python = detectPython();

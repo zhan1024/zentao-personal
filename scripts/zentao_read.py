@@ -9,7 +9,6 @@ import json
 import os
 from pathlib import Path
 import re
-import shlex
 import subprocess
 import sys
 import tempfile
@@ -32,6 +31,8 @@ def validate_config(config):
         normalized = {}
         for key in CONFIG_KEYS:
             if not isinstance(config[key], str) or not config[key].strip():
+                raise ValueError()
+            if any(char in config[key] for char in ('\r', '\n', '\0')):
                 raise ValueError()
             normalized[key] = config[key].strip()
         url = urlsplit(normalized['base_url'])
@@ -90,12 +91,28 @@ def read_password(config):
     if sys.platform == 'darwin':
         result = subprocess.run(
             ['/usr/bin/security', 'find-generic-password', '-s', config['keychain_service'],
-             '-a', config['account'], '-w'],
+             '-a', config['account'], '-g'],
             capture_output=True, text=True, timeout=30,
         )
-        if result.returncode or not result.stdout.rstrip('\r\n'):
+        if result.returncode:
             raise ZenTaoError('系统钥匙串中没有可用凭据或访问被拒绝；请运行本脚本的 configure 命令。')
-        return result.stdout.rstrip('\r\n')
+        # security -w 对非 ASCII 字节输出无标记的十六进制，会和纯十六进制密码混淆。
+        # -g 的 stderr 明确区分 0xHEX 与 "ASCII"；按 Apple print_buffer 格式读取。
+        match = re.search(r'^password: (.+)$', result.stderr, re.M)
+        encoded = match.group(1).rstrip('\r') if match else ''
+        try:
+            hexadecimal = re.match(r'^0x([0-9a-fA-F]+)(?:\s|$)', encoded)
+            if hexadecimal:
+                password = bytes.fromhex(hexadecimal.group(1)).decode('utf-8')
+            elif encoded.startswith('"') and encoded.endswith('"'):
+                password = encoded[1:-1]
+            else:
+                raise ValueError()
+            if not password:
+                raise ValueError()
+            return password
+        except (ValueError, UnicodeError):
+            raise ZenTaoError('无法读取系统钥匙串凭据格式；请重新运行 configure。') from None
 
     try:
         import keyring
@@ -112,7 +129,13 @@ def read_password(config):
 def save_password(config, password):
     if sys.platform == 'darwin':
         # 使用 stdin 传给 security 交互模式，密码不进入进程参数或磁盘文件。
-        command = shlex.join([
+        # security 自带参数解析器不支持 shell 的引号拼接，必须转义双引号及反斜线。
+        def security_quote(value):
+            if any(char in value for char in ('\r', '\n', '\0')):
+                raise ZenTaoError('钥匙串字段不能包含换行或空字符。')
+            return '"' + value.replace('\\', '\\\\').replace('"', '\\"') + '"'
+
+        command = ' '.join(security_quote(value) for value in [
             'add-generic-password', '-U', '-a', config['account'],
             '-s', config['keychain_service'], '-w', password,
         ])
@@ -246,7 +269,7 @@ class Client:
         nonce = self.request('user-refreshRandom.html').strip()
         if not nonce.isdigit():
             raise ZenTaoError('无法获取禅道旧版登录随机数。')
-        digest = hashlib.md5(password.strip().encode()).hexdigest()
+        digest = hashlib.md5(password.encode()).hexdigest()
         challenge = hashlib.md5((digest + nonce).encode()).hexdigest()
         raw = self.request('user-login.html', {
             'account': self.config['account'], 'password': challenge,
